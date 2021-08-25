@@ -1,21 +1,18 @@
-package edu.learning;
+package edu.learning.models;
 
 import edu.learning.exceptions.DimensionMismatchException;
-import edu.learning.models.Matrix;
-import edu.learning.models.MatrixImpl;
+import org.junit.Test;
+
+
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Hello world!
- *
- */
-public class App {
-    public static void main(String[] args) throws DimensionMismatchException {
-        System.out.println("Matrix Cross Product!");
-
+public class MatrixTest {
+    @Test
+    public void crossProductTest() throws DimensionMismatchException {
 
         int row1 = 3, col1 = 3;
         int row2 = 3, col2 = 2;
@@ -24,13 +21,14 @@ public class App {
         List<Integer> values2 = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9));
 
         Matrix A = new MatrixImpl(row1, col1, values1);
-        A.display("A");
-
         Matrix B = new MatrixImpl(row2, col2, values2, true);
-        B.display("B");
 
         Matrix C = A.crossProduct(B);
-        C.display("C");
 
+        String out = "Matrix{matrix = 22.0 , 28.0\n" +
+                "49.0 , 64.0\n" +
+                "14.0 , 20.0\n}";
+
+        assertEquals(out , C.toString());
     }
 }
