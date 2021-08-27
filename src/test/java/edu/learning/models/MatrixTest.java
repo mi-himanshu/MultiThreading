@@ -12,7 +12,7 @@ import java.util.List;
 
 public class MatrixTest {
     @Test
-    public void crossProductTest() throws DimensionMismatchException {
+    public void crossProductTest() throws DimensionMismatchException, InterruptedException {
 
         int row1 = 3, col1 = 3;
         int row2 = 3, col2 = 2;

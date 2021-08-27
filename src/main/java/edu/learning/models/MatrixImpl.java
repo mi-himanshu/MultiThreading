@@ -4,9 +4,15 @@ import edu.learning.exceptions.DimensionMismatchException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MatrixImpl implements Matrix{
     private MatDS matrix;
+    private static int MAX_THREADS = 6;
+    private boolean MULTI_THREADING = true;
+    private ExecutorService pool;
 
     private static List<Double> castValues(List<?> values) {
         List<Double> res = new ArrayList<>();
@@ -79,15 +85,21 @@ public class MatrixImpl implements Matrix{
                 '}';
     }
 
-    @Override
-    public Matrix crossProduct(Matrix matrix) throws DimensionMismatchException {
+    private Matrix crossProductMultiThread(Matrix matrix) throws InterruptedException {
+        pool = Executors.newFixedThreadPool(MAX_THREADS);
+        CrossProd.setMatrices(this, matrix, new MatrixImpl(this.getRows(), matrix.getCols()));
+        List<Callable<Object>> callables = new ArrayList<>();
+        for(int i=0; i<getRows(); i++) {
+            CrossProd cp = new CrossProd(i);
+            callables.add(Executors.callable(cp));
+        }
+        pool.invokeAll(callables);
+        pool.shutdown();
+        return CrossProd.getResult();
+    }
+    private Matrix crossProductNaiive(Matrix matrix) {
         int row1 = this.getRows(), row2 = matrix.getRows();
         int col1 = this.getCols(), col2 = matrix.getCols();
-
-
-
-        if (row2 != col1)
-            throw new DimensionMismatchException();
 
 //        System.out.println("Initializing result matrix...");
         Matrix res = new MatrixImpl(row1, col2);
@@ -103,7 +115,32 @@ public class MatrixImpl implements Matrix{
                 res.setVal(i, j, sum);
             }
         }
-
         return res;
+    }
+    @Override
+    public Matrix crossProduct(Matrix matrix) throws DimensionMismatchException, InterruptedException {
+        int row1 = this.getRows(), row2 = matrix.getRows();
+        int col1 = this.getCols(), col2 = matrix.getCols();
+
+        if (row2 != col1)
+            throw new DimensionMismatchException();
+
+        Matrix res;
+        if (isMULTI_THREADING()) {
+            res = crossProductMultiThread(matrix);
+        } else {
+            res = crossProductNaiive(matrix);
+        }
+        return res;
+    }
+
+    @Override
+    public boolean isMULTI_THREADING() {
+        return MULTI_THREADING;
+    }
+
+    @Override
+    public void setMULTI_THREADING(boolean MULTI_THREADING) {
+        this.MULTI_THREADING = MULTI_THREADING;
     }
 }
