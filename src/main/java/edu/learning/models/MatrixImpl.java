@@ -84,8 +84,19 @@ public class MatrixImpl implements Matrix{
                 "matrix = " + matrix.toString() +
                 '}';
     }
-
     private Matrix crossProductMultiThread(Matrix matrix) throws InterruptedException {
+        pool = Executors.newFixedThreadPool(MAX_THREADS);
+        CrossProductImpl.initData(this, matrix);
+        List<Callable<Object>> callables = new ArrayList<>();
+        for(int i=0; i<getRows(); i++) {
+            CrossProduct cp = new CrossProductImpl(i);
+            callables.add(Executors.callable(cp));
+        }
+        pool.invokeAll(callables);
+        pool.shutdown();
+        return CrossProductImpl.getResult();
+    }
+    private Matrix crossProductMultiThread2(Matrix matrix) throws InterruptedException {
         pool = Executors.newFixedThreadPool(MAX_THREADS);
         CrossProd.setMatrices(this, matrix, new MatrixImpl(this.getRows(), matrix.getCols()));
         List<Callable<Object>> callables = new ArrayList<>();
