@@ -13,20 +13,7 @@ public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Matrix Cross Product!" );
-
-        Vector<Vector<Double>> mat = new Vector<>();
-        int rows = 3, cols = 3;
-        for (int i = 0; i<rows; i++) {
-            Vector<Double> i_row = new Vector<>();
-            for (int j=0; j < cols; j++) {
-                i_row.add(Math.random());
-            }
-            mat.add(i_row);
-        }
-
-        System.out.println(mat);
-
+        System.out.println( "Multi-Threading!" );
 
     }
 }
