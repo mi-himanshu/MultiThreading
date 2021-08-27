@@ -3,6 +3,9 @@ package edu.learning.models;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementation of the MatDS interface.
+ * */
 public class MatDSImpl implements MatDS{
     Double[][] mat;
     int rows, cols;

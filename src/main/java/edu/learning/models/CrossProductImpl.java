@@ -1,7 +1,13 @@
 package edu.learning.models;
 
+/**
+ * Implementation of the CrossProduct abstract class.
+ * */
 public class CrossProductImpl extends CrossProduct{
 
+    /**
+     * Row to operate on.
+     * */
     private final int row;
 
     CrossProductImpl(int row) {

@@ -8,12 +8,20 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Provides Implementation for the Matrix Interface.
+ */
 public class MatrixImpl implements Matrix{
+    /* Matrix Data Structure */
     private MatDS matrix;
+    /* LIMIT on the maximum threads to use in the thread pool */
     private static int MAX_THREADS = 6;
+    /* Switch for checking if multi-threading is allowed */
     private boolean MULTI_THREADING = true;
+    /* Thread Pool */
     private ExecutorService pool;
 
+    /* Used for casting Integers, Floats and Doubles into Doubles */
     private static List<Double> castValues(List<?> values) {
         List<Double> res = new ArrayList<>();
 
@@ -29,6 +37,7 @@ public class MatrixImpl implements Matrix{
         return res;
     }
 
+    /* ---------- Constructors ----------*/
     public MatrixImpl(int rows, int cols) {
         this.matrix = new MatDSImpl(rows, cols);
     }
@@ -38,6 +47,7 @@ public class MatrixImpl implements Matrix{
     public MatrixImpl(int rows, int cols, List<?> values, boolean rowPriority) {
         this.matrix = new MatDSImpl(rows, cols, castValues(values), rowPriority);
     }
+
     @Override
     public int getRows() {
         return matrix.getRows();
@@ -46,6 +56,16 @@ public class MatrixImpl implements Matrix{
     @Override
     public int getCols() {
         return matrix.getCols();
+    }
+
+    @Override
+    public boolean isMULTI_THREADING() {
+        return MULTI_THREADING;
+    }
+
+    @Override
+    public void setMULTI_THREADING(boolean MULTI_THREADING) {
+        this.MULTI_THREADING = MULTI_THREADING;
     }
 
     @Override
@@ -84,50 +104,6 @@ public class MatrixImpl implements Matrix{
                 "matrix = " + matrix.toString() +
                 '}';
     }
-    private Matrix crossProductMultiThread(Matrix matrix) throws InterruptedException {
-        pool = Executors.newFixedThreadPool(MAX_THREADS);
-        CrossProductImpl.initData(this, matrix);
-        List<Callable<Object>> callables = new ArrayList<>();
-        for(int i=0; i<getRows(); i++) {
-            CrossProduct cp = new CrossProductImpl(i);
-            callables.add(Executors.callable(cp));
-        }
-        pool.invokeAll(callables);
-        pool.shutdown();
-        return CrossProductImpl.getResult();
-    }
-    private Matrix crossProductMultiThread2(Matrix matrix) throws InterruptedException {
-        pool = Executors.newFixedThreadPool(MAX_THREADS);
-        CrossProd.setMatrices(this, matrix, new MatrixImpl(this.getRows(), matrix.getCols()));
-        List<Callable<Object>> callables = new ArrayList<>();
-        for(int i=0; i<getRows(); i++) {
-            CrossProd cp = new CrossProd(i);
-            callables.add(Executors.callable(cp));
-        }
-        pool.invokeAll(callables);
-        pool.shutdown();
-        return CrossProd.getResult();
-    }
-    private Matrix crossProductNaiive(Matrix matrix) {
-        int row1 = this.getRows(), row2 = matrix.getRows();
-        int col1 = this.getCols(), col2 = matrix.getCols();
-
-//        System.out.println("Initializing result matrix...");
-        Matrix res = new MatrixImpl(row1, col2);
-
-//        System.out.println("Rows: " + res.getRows() + ", Cols: " + res.getCols());
-//        res.display();
-        for(int i=0; i<row1; i++) {
-            for(int j=0; j<col2; j++) {
-                Double sum = 0.0;
-                for(int k=0; k<col1; k++) {
-                    sum += this.getVal(i, k) * matrix.getVal(k, j);
-                }
-                res.setVal(i, j, sum);
-            }
-        }
-        return res;
-    }
     @Override
     public Matrix crossProduct(Matrix matrix) throws DimensionMismatchException, InterruptedException {
         int row1 = this.getRows(), row2 = matrix.getRows();
@@ -145,13 +121,38 @@ public class MatrixImpl implements Matrix{
         return res;
     }
 
-    @Override
-    public boolean isMULTI_THREADING() {
-        return MULTI_THREADING;
+    /* ---------- Utility Methods ---------- */
+
+    /* Multi-Threaded Cross Product Implementation */
+    private Matrix crossProductMultiThread(Matrix matrix) throws InterruptedException {
+        pool = Executors.newFixedThreadPool(MAX_THREADS);
+        CrossProductImpl.initData(this, matrix);
+        List<Callable<Object>> callables = new ArrayList<>();
+        for(int i=0; i<getRows(); i++) {
+            CrossProduct cp = new CrossProductImpl(i);
+            callables.add(Executors.callable(cp));
+        }
+        pool.invokeAll(callables);
+        pool.shutdown();
+        return CrossProductImpl.getResult();
     }
 
-    @Override
-    public void setMULTI_THREADING(boolean MULTI_THREADING) {
-        this.MULTI_THREADING = MULTI_THREADING;
+    /* Single Threaded CrossProduct Implementation */
+    private Matrix crossProductNaiive(Matrix matrix) {
+        int row1 = this.getRows(), row2 = matrix.getRows();
+        int col1 = this.getCols(), col2 = matrix.getCols();
+
+        Matrix res = new MatrixImpl(row1, col2);
+
+        for(int i=0; i<row1; i++) {
+            for(int j=0; j<col2; j++) {
+                Double sum = 0.0;
+                for(int k=0; k<col1; k++) {
+                    sum += this.getVal(i, k) * matrix.getVal(k, j);
+                }
+                res.setVal(i, j, sum);
+            }
+        }
+        return res;
     }
 }
