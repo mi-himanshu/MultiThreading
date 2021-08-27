@@ -25,10 +25,9 @@ public class MatrixTest {
 
         Matrix C = A.crossProduct(B);
 
-        String out = "Matrix{matrix = 22.0 , 28.0\n" +
-                "49.0 , 64.0\n" +
-                "14.0 , 20.0\n}";
+        List<Integer> resultValues = new ArrayList<>(Arrays.asList(22, 28, 49, 64, 14, 20));
+        Matrix res = new MatrixImpl(row1, col2, resultValues);
 
-        assertEquals(out , C.toString());
+        assertTrue(C.equals(res));
     }
 }

@@ -43,6 +43,20 @@ public class MatrixImpl implements Matrix{
     }
 
     @Override
+    public boolean equals(Matrix mat) {
+        int rows = mat.getRows(), cols = mat.getCols();
+        if (rows != getRows() || cols != getCols())
+            return false;
+
+        for(int i=0; i<rows; i++) {
+            for(int j=0; j<cols; j++) {
+                if (!getVal(i, j).equals(mat.getVal(i, j))) // using the != notation gives error. why???
+                    return false;
+            }
+        }
+        return true;
+    }
+    @Override
     public void display(String message) {
         System.out.println("Displaying matrix "+ message +"...");
         matrix.display();
